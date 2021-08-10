@@ -1,101 +1,175 @@
-{
-    const salary = document.querySelector('#salary');
-    const salaryOutput = document.querySelector('#salaryOutput');
-    salary.addEventListener('input' , function(){
-        salaryOutput.textContent = salary.value;
-    });
-}
+class EmployeePayrollData {
 
-let regexName = RegExp('^[A-Z][a-z]{3,}$');
-class EmployeePayRollData {
-    // constructor
     constructor(...params) {
         this.name = params[0];
         this.salary = params[1];
         this.gender = params[2];
-        this.department = params[3];
-        this.startDate = params[4];
-        this.notes = params[5];
+        this.startDate = params[3];
+        this.departments = params[4];
     }
-    get name() { return this._name; }
+
+    get name() {
+        return this._name;
+    }
+
     set name(name) {
-        if (regexName.test(name))
+        let nameRegex = RegExp('^[A-Z]{1}[a-z]{2,}$');
+        if (nameRegex.test(name)) {
             this._name = name;
-        else
-            throw 'Name is Invalid!'
+        }
+        else throw 'Name is incorrect';
     }
-    get salary() { return this._salary; }
+
+    get salary() {
+        return this._salary;
+    }
+
     set salary(salary) {
-        if (salary > 0)
+        let salaryRegex = RegExp('^[1-9]{1}[0-9]{0,}$');
+        if (salaryRegex.test(salary)) {
             this._salary = salary;
-        else
-            throw 'Salary is Invalid!'
+        }
+        else throw 'Salary is incorrect';
     }
-    get gender() { return this._gender; }
+
+    get gender() {
+        return this._gender;
+    }
+
     set gender(gender) {
-        this._gender = gender;
+        if (this._gender === undefined) {
+            this._gender = "m";
+        } else {
+            let genderRegex = RegExp('^[a-zA-Z]{1}$');
+            if (genderRegex.test(gender)) this._gender = gender;
+            else throw 'Gender is incorrect';
+        }
     }
 
-    get department() { return this._department; }
-    set department(department) { this._department = department; }
+    get startDate() {
+        return this._startDate;
+    }
 
-    get startDate() { return this._startDate; }
     set startDate(startDate) {
-        if (startDate <= new Date())
-            this._startDate = startDate;
-        else
-            throw 'StartDate is Invalid!'
+        if (this._startDate === undefined) {
+            this._startDate = new Date();
+        } else {
+            if ((startDate.getDay() <= new Date().getDay()) && (startDate.getMonth() <= new Date().getMonth())
+                && (startDate.getYear() <= new Date().getYear())) this._startDate = startDate;
+            else alert('startDate is incorrect');
+        }
     }
 
-    get notes() { this._notes = notes; }
-    set notes(notes) { this._notes = notes; }
-    //methods
+    get departments() {
+        return this._departments;
+    }
+
+    set departments(departments) {
+        if (this._departments == undefined) {
+            departments.push("None");
+            this._departments = departments;
+        }
+        this._departments = departments;
+    }
+
     toString() {
-        const options = {
-            year: 'numeric', month: 'long', day: 'numeric'
-        };
-        const empDate = this._startDate == undefined ? "undefined" : this.startDate.toLocaleDateString("en-IN", options);
-        return "name = " + this.name + ", salary = " + this.salary + ", gender = " + this.gender + ", department = " + this.department + ", start-date = " + empDate + ", notes= " + this.notes;
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        const empDate = this.startDate === undefined ? "undefined" :
+            this.startDate.toLocaleDateString("en-US", options);
+        return "name: " + this.name + ", salary: " + this.salary + ", gender: "
+            + this.gender + ", startDate: " + empDate + ", departments: " + this.departments;
     }
 }
 
-function save(){
-    let empName = document.querySelector('#name').value;
-    let imageArray = document.querySelector('input[name="profile"]');
-    let image;
-    for (let index = 0; index < imageArray.length; index++) {
-        if(imageArray[i].checked){
-            image = imageArray[i].value;
-            break;
+
+function save() {
+    let result;
+
+    var name = document.getElementById("name").value;
+    result = nameCheckRegex(name);
+
+    var gender;
+    if (document.getElementById("male").checked == true) gender = document.getElementById("male").value;
+    else gender = document.getElementById("female").value;
+
+    var salary = document.getElementById("salary").value;
+
+    var day = document.getElementById("day").value;
+    let month = document.getElementById("month").value;
+    var year = document.getElementById("year").value;
+    let result1 = dateCheck(day, month, year);
+
+    let departmentArray = new Array();
+    if (document.getElementById("hr").checked == true) departmentArray.push(document.getElementById("hr").value);
+    if (document.getElementById("sales").checked == true) departmentArray.push(document.getElementById("sales").value);
+    if (document.getElementById("finance").checked == true) departmentArray.push(document.getElementById("finance").value);
+    if (document.getElementById("engineer").checked == true) departmentArray.push(document.getElementById("engineer").value);
+    if (document.getElementById("others").checked == true) departmentArray.push(document.getElementById("others").value);
+
+    if (result == false || result1 == false) alert("Correct the details!");
+    else {
+        alert("Details submitted successfully!!!");
+
+        if (gender == "male") gender = "m";
+        else gender = "f";
+
+        if (month == "Jan") month = 1;
+        if (month == "Feb") month = 2;
+        if (month == "Mar") month = 3;
+        if (month == "Apr") month = 4;
+        if (month == "May") month = 5;
+        if (month == "June") month = 6;
+        if (month == "July") month = 7;
+        if (month == "Aug") month = 8;
+        if (month == "Sep") month = 9;
+        if (month == "Oct") month = 10;
+        if (month == "Nov") month = 11;
+        if (month == "Dec") month = 12;
+
+        let startDate = new Date(year, month, day);
+        let employeePayrollData = new EmployeePayrollData(name, salary, gender, startDate, departmentArray);
+
+        var returnedValue = employeePayrollData.toString();
+        alert("Populared employee payroll object : " + returnedValue);
+    };
+}
+
+function nameCheckRegex(name) {
+    let result = true;
+    let nameRegex = RegExp('^[A-Z]{1}[a-z]{2,}$');
+    if (!(nameRegex.test(name))) {
+        alert("Name incorrect");
+        result = false;
+    }
+    return result;
+}
+
+function dateCheck(day, month, year) {
+    let result = true;
+
+    if (month == "Feb" && year == "2020" || month == "Feb" && year == "2016") {
+        if (day > 29) {
+            alert("date invalid!");
+            result = false;
+            return result;
         }
     }
 
-    let genderArray = document.querySelector('input[name="gender"]');
-    let gender;
-    for (let index = 0; index < genderArray.length; index++) {
-        if(genderArray[i].checked){
-            gender = genderArray[i].value;
-            break;
+    if (month == "Feb") {
+        if (day > 28) {
+            alert("date invalid!");
+            result = false;
+            return result;
         }
     }
 
-    let empDepartmentArray = document.querySelector('.checkbox:checked');
-    let empDepartment = new Array();
-    for (let i = 0; i < empDepartmentArray.length; i++) {
-        if (empDepartmentArray[i].checked)
-            empDepartment.push(empDepartmentArray[i].value);
+    if (month == "Apr" || month == "June" || month == "Oct" || month == "Nov") {
+        if (day > 30) {
+            alert("date invalid!");
+            result = false;
+            return result;
+        }
     }
-    let day = document.querySelector('#day').value;
-    let month = document.querySelector('#month').value;
-    let year = document.querySelector('#year').value;
-    let empSalary = document.querySelector('#salary').value;
-    let empStartDate = new Date(year, month, day);
-    let empNotes = document.querySelector('#notes').value;
-    try {
-        employeePayRollData = new EmployeePayRollData(empName, empSalary, empGender, empDepartment, empStartDate, empNotes);
-    }
-    catch (error) {
-        console.error(error);
-    }
-    console.log(employeePayRollData.toString());
+
+    return result;
 }
